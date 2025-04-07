@@ -1,4 +1,4 @@
-package com.vazzab.vfplay
+package com.vazzab.vfplay_v2
 
 import org.junit.Test
 
