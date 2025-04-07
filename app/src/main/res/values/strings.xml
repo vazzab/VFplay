@@ -1,9 +1,3 @@
 <resources>
     <string name="app_name">VFplay</string>
-    <string name="navigation_button_main">Главная</string>
-    <string name="navigation_button_category">Категории</string>
-    <string name="navigation_button_bookmark">Закладки</string>
-    <string name="navigation_button_new">Новинки</string>
-    <string name="navigation_button_top">Популярное</string>
-    <string name="main_screen_text">Текст будет добавлен немного позже, а пока держите контакты для связи \ne-mail: example@gmail.com \nтелефон: +7(999)555-33-22</string>
 </resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.vazzab.vfplay.HomeFragment"
+        android:label="Главная"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/categoriesFragment"
+        android:name="com.vazzab.vfplay.CategoriesFragment"
+        android:label="Категории"
+        tools:layout="@layout/fragment_categories" />
+
+    <fragment
+        android:id="@+id/bookmarksFragment"
+        android:name="com.vazzab.vfplay.BookmarksFragment"
+        android:label="Закладки"
+        tools:layout="@layout/fragment_bookmarks" />
+
+    <fragment
+        android:id="@+id/popularFragment"
+        android:name="com.vazzab.vfplay.PopularFragment"
+        android:label="Популярное"
+        tools:layout="@layout/fragment_popular" />
+
+</navigation>

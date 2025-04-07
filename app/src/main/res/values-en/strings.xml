@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">VFplay</string>
-    <string name="navigation_button_main">Main</string>
-    <string name="navigation_button_category">Category</string>
-    <string name="navigation_button_bookmark">Bookmark</string>
-    <string name="navigation_button_new">New</string>
-    <string name="navigation_button_top">Popular</string>
-</resources>
