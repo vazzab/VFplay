@@ -1,9 +1,6 @@
 package com.vazzab.vfplay
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
@@ -21,29 +18,38 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import com.vazzab.vfplay.ui.theme.VFplayTheme
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.scale
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 
 class HomeFragment : Fragment() {
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): android.view.View {
         return ComposeView(requireContext()).apply {
             setContent {
                 VFplayTheme {
-                    ContentList()
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        TrackList()
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun ContentList() {
-    val context = LocalContext.current
-    var contentItems by remember { mutableStateOf(listOf<Int>()) }
+data class TrackItem(val id: Int, val posterRes: Int, val title: String, val subtitle: String)
 
-    val posters = listOf(
+@Composable
+fun TrackList() {
+    val context = LocalContext.current
+
+    val posterList = listOf(
         R.drawable.poster1,
         R.drawable.poster2,
         R.drawable.poster3,
@@ -51,71 +57,68 @@ fun ContentList() {
         R.drawable.poster5
     )
 
+    var trackItems by remember { mutableStateOf(listOf<TrackItem>()) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = {
-                if (contentItems.size >= 5) {
+        ControlButtons(
+            onAdd = {
+                if (trackItems.size >= 5) {
                     Toast.makeText(context, "Больше 5 не могу", Toast.LENGTH_SHORT).show()
                 } else {
-                    val next = contentItems.size
-                    contentItems = contentItems + next
+                    val newIndex = trackItems.size
+                    val newItem = TrackItem(
+                        id = newIndex,
+                        posterRes = posterList[newIndex],
+                        title = "Poster ${newIndex + 1}",
+                        subtitle = "Text ${newIndex + 1}"
+                    )
+                    trackItems = trackItems + newItem
                 }
-            }) {
-                Text("Добавить")
-            }
-
-            Button(onClick = {
-                if (contentItems.isEmpty()) {
+            },
+            onRemove = {
+                if (trackItems.isEmpty()) {
                     Toast.makeText(context, "Нечего убирать", Toast.LENGTH_SHORT).show()
                 } else {
-                    // удаляем первый элемент (Track1)
-                    contentItems = contentItems.drop(1)
+                    trackItems = trackItems.drop(1) // удаляем первый элемент
                 }
-            }) {
-                Text("Убрать")
             }
-        }
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Column {
-            contentItems.forEachIndexed { index, i ->
+            trackItems.forEach { item ->
                 AnimatedVisibility(
                     visible = true,
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
                     exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
                 ) {
-                    TrackItem(
-                        posterId = posters[i],
-                        title = "poster${i + 1}",
-                        subtitle = "text${i + 1}"
-                    )
+                    Track(item)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
 }
 
-
 @Composable
-fun TrackItem(posterId: Int, title: String, subtitle: String) {
+fun Track(item: TrackItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp))
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(8.dp)
+            )
             .padding(16.dp)
     ) {
         Image(
-            painter = painterResource(id = posterId),
-            contentDescription = title,
+            painter = painterResource(id = item.posterRes),
+            contentDescription = item.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(56.dp)
@@ -124,15 +127,60 @@ fun TrackItem(posterId: Int, title: String, subtitle: String) {
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
-                text = title,
+                text = item.title,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = subtitle,
+                text = item.subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
+        }
+    }
+}
+
+@Composable
+fun ControlButtons(
+    onAdd: () -> Unit,
+    onRemove: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AnimatedElevatedButton(text = "Добавить", onClick = onAdd)
+        AnimatedElevatedButton(text = "Убрать", onClick = onRemove)
+    }
+}
+
+@Composable
+fun AnimatedElevatedButton(text: String, onClick: () -> Unit) {
+    var pressed by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.95f else 1f,
+        animationSpec = tween(durationMillis = 100),
+        label = "scale"
+    )
+
+    Button(
+        onClick = {
+            pressed = true
+            onClick()
+        },
+        modifier = Modifier
+            .scale(scale)
+    ) {
+        Text(text)
+    }
+
+    LaunchedEffect(pressed) {
+        if (pressed) {
+            kotlinx.coroutines.delay(150)
+            pressed = false
         }
     }
 }
