@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
@@ -54,25 +56,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Меню настроек
     private fun showThemeDialog() {
-        val options = arrayOf("Светлая", "Тёмная", "Системная")
-        val checked = when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_NO -> 0
-            AppCompatDelegate.MODE_NIGHT_YES -> 1
-            else -> 2
+        val dialogView = layoutInflater.inflate(R.layout.theme_switch_dialog, null)
+        val themeSwitch = dialogView.findViewById<Switch>(R.id.theme_switch)
+
+        // Устанавливаем текущее состояние
+        themeSwitch.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+
+        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Выбор темы")
-            .setSingleChoiceItems(options, checked) { dialog, which ->
-                when (which) {
-                    0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Отмена", null)
+            .setTitle("Настройки")
+            .setView(dialogView)
+            .setPositiveButton("ОК", null)
             .show()
     }
 }
